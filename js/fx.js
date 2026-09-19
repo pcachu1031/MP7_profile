@@ -15,6 +15,7 @@ const FX = {
       glitch: document.getElementById("glitch"),
       identity: document.getElementById("identity"),
       portrait: document.getElementById("portrait"),
+      vaultPortrait: document.getElementById("vaultPortrait"),
       scanLabel: document.getElementById("scanLabel"),
       scanPct: document.getElementById("scanPct"),
     };
@@ -36,6 +37,7 @@ const FX = {
   },
 
   tickHash() {
+    if (!this.els.hash) return;
     const hex = Math.floor(Math.random() * 0xffffff)
       .toString(16)
       .toUpperCase()
@@ -70,9 +72,12 @@ const FX = {
   },
 
   triggerScan() {
-    this.els.portrait.classList.remove("is-scanning");
-    void this.els.portrait.offsetWidth;
-    this.els.portrait.classList.add("is-scanning");
+    [this.els.portrait, this.els.vaultPortrait].forEach((el) => {
+      if (!el) return;
+      el.classList.remove("is-scanning");
+      void el.offsetWidth;
+      el.classList.add("is-scanning");
+    });
     this.els.scanLabel.textContent = "SCANNING";
     this.animateScanPct();
   },

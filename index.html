@@ -4,28 +4,95 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#050807" />
-    <title>APA // MP7 PERSONNEL RECORD</title>
+    <title>MEPIRIT // ARCHIVE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./css/style.css?v=2" />
+    <link rel="stylesheet" href="./css/style.css?v=33" />
   </head>
   <body>
-    <div class="crt-root">
-      <div class="fx-grid" aria-hidden="true"></div>
-      <div class="fx-vignette" aria-hidden="true"></div>
-      <div class="fx-scanlines" aria-hidden="true"></div>
-      <div class="fx-glitch" id="glitch" aria-hidden="true"></div>
+    <div class="type-size type-size-float" id="typeSize" role="group" aria-label="글자 크기">
+      <span>SIZE</span>
+      <button type="button" data-size="normal">보통</button>
+      <button type="button" data-size="large">크게</button>
+    </div>
 
+    <div class="fx-mood" aria-hidden="true"></div>
+    <div class="fx-grid" aria-hidden="true"></div>
+    <div class="fx-vignette" aria-hidden="true"></div>
+    <div class="fx-scanlines" aria-hidden="true"></div>
+    <div class="fx-glitch" id="glitch" aria-hidden="true"></div>
+
+    <section class="gate-screen is-on" id="screenLogin" aria-label="로그인">
+      <div class="login-frame">
+        <div class="login-corners" aria-hidden="true"></div>
+        <div class="login-mark">MEP</div>
+        <p class="login-kicker">CLASSIFIED // MEPIRIT</p>
+        <h1>MEPIRIT ARCHIVE</h1>
+        <p class="login-sub">OPERATOR AUTHENTICATION REQUIRED</p>
+        <form id="loginForm" class="login-form" autocomplete="off">
+          <label for="passwordInput">PASSWORD</label>
+          <div class="login-row">
+            <span class="login-prompt">&gt;</span>
+            <input
+              id="passwordInput"
+              type="password"
+              name="password"
+              maxlength="32"
+              spellcheck="false"
+              autocomplete="off"
+            />
+          </div>
+          <p class="login-msg" id="loginMsg" aria-live="polite"></p>
+          <button type="submit" class="btn-sys login-submit">AUTHORIZE</button>
+        </form>
+        <p class="login-foot">MEPIRIT NODE ONLINE // AWAITING CREDENTIAL</p>
+      </div>
+    </section>
+
+    <section class="gate-screen" id="screenLoading" aria-label="명단 로딩">
+      <div class="login-frame">
+        <div class="login-corners" aria-hidden="true"></div>
+        <div class="login-mark">MEP</div>
+        <p class="login-kicker">MEPIRIT NODE</p>
+        <h1>MOUNTING ARCHIVE ROSTER</h1>
+        <p class="login-sub" id="gateLoadMsg">Opening secure index...</p>
+        <div class="gate-progress">
+          <div class="progress-meta">
+            <span>LOAD</span>
+            <span id="gateProgressLabel">000%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="gateProgressFill"></div>
+          </div>
+        </div>
+        <p class="login-foot">PLEASE STAND BY</p>
+        <div class="gate-shine" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <section class="gate-screen" id="screenSelect" aria-label="개체 선택">
+      <div class="roster-wrap">
+        <header class="roster-head">
+          <p class="login-kicker">MEPIRIT ROSTER</p>
+          <h1>SELECT REGISTERED ENTITY</h1>
+          <p class="login-sub">REGISTERED: 1 // EMPTY SLOTS AVAILABLE</p>
+        </header>
+        <div class="roster" id="roster"></div>
+        <button type="button" class="btn-sys" id="signOutBtn">SIGN OUT</button>
+      </div>
+    </section>
+
+    <div class="crt-root is-hidden" id="screenTerminal">
       <header class="topbar">
         <div class="brand">
-          <span class="brand-mark">APA</span>
+          <span class="brand-mark">MEP</span>
           <div class="brand-copy">
-            <strong>ARMAMENT PERSONNEL ARCHIVE</strong>
-            <span>SECURE NODE // WEAPON ENTITY RECORD</span>
+            <strong>MEPIRIT ARCHIVE</strong>
+            <span>SECURE NODE // ENTITY RECORD</span>
           </div>
         </div>
         <div class="status-cluster">
@@ -60,31 +127,26 @@
               id="portraitImage"
             />
             <div class="scan-beam" aria-hidden="true"></div>
+            <button type="button" class="ident-view" id="identViewBtn" hidden>VIEW IMAGE</button>
             <div class="portrait-hud">
               <span id="identHud">ID: MP7 // FORMAL</span>
               <span id="scanPct">SCAN 000%</span>
             </div>
           </div>
+          <div class="ident-sheet">
+            <p class="ident-code" data-field="sheet-code">—</p>
+            <h2 class="ident-name" data-field="sheet-name">—</h2>
+            <p class="ident-sub" data-field="sheet-sub">—</p>
+            <p class="ident-status"><span class="ident-dot" aria-hidden="true"></span><span data-field="sheet-status">LOCKED</span></p>
+          </div>
           <dl class="spec" id="specList">
-            <div>
-              <dt>DESIGNATION</dt>
-              <dd data-field="designation">—</dd>
-            </div>
-            <div>
-              <dt>CODENAME</dt>
-              <dd data-field="codename">—</dd>
-            </div>
-            <div>
-              <dt>SEX</dt>
-              <dd data-field="gender">—</dd>
-            </div>
             <div>
               <dt>HEIGHT</dt>
               <dd data-field="height">—</dd>
             </div>
             <div>
-              <dt>MANUFACTURER</dt>
-              <dd data-field="manufacturer">—</dd>
+              <dt>SEX</dt>
+              <dd data-field="gender">—</dd>
             </div>
             <div>
               <dt>ORIGIN</dt>
@@ -99,14 +161,11 @@
               <dd data-field="caliber">—</dd>
             </div>
             <div>
-              <dt>PLATFORM</dt>
-              <dd data-field="platform">—</dd>
-            </div>
-            <div>
-              <dt>MOBILITY</dt>
-              <dd data-field="mobility">—</dd>
+              <dt>MAKER</dt>
+              <dd data-field="manufacturer">—</dd>
             </div>
           </dl>
+          <p class="ident-note"><span data-field="platform">—</span> // <span data-field="mobility">—</span></p>
         </aside>
 
         <section class="console">
@@ -125,6 +184,51 @@
         </section>
       </main>
 
+      <main class="workspace visual-deck is-hidden" id="visualDeck">
+        <aside class="vault-index">
+          <div class="panel-head">
+            <span>VISUAL LOG</span>
+            <span id="vaultScan">GENERAL</span>
+          </div>
+          <div class="vault-tabs" id="vaultTabs">
+            <button type="button" class="ident-tab is-active" data-vault="field" disabled>GENERAL</button>
+            <button type="button" class="ident-tab" data-vault="restricted" disabled>RESTRICTED // 19+</button>
+          </div>
+          <div class="stills" id="stills"></div>
+          <p class="vault-note" id="vaultNote">
+            식별 사진과 분리된 일반 기록입니다. 19+ 로그는 RESTRICTED 탭에서 엽니다.
+          </p>
+        </aside>
+        <section class="vault-stage">
+          <div class="portrait vault-portrait" id="vaultPortrait">
+            <div class="bracket tl"></div>
+            <div class="bracket tr"></div>
+            <div class="bracket bl"></div>
+            <div class="bracket br"></div>
+            <img class="portrait-image" id="stillPreview" alt="" hidden />
+            <p class="vault-placeholder" id="stillEmpty">SELECT A STILL</p>
+            <div class="scan-beam" aria-hidden="true"></div>
+            <div class="portrait-hud">
+              <span id="stillCaption">VISUAL LOG</span>
+              <span id="vaultChannel">GENERAL</span>
+            </div>
+            <p class="viewer-hint" id="viewerHint" hidden>CLICK TO VIEW ORIGINAL</p>
+            <p class="still-frame" id="stillFrame" hidden>01 / 02</p>
+            <button type="button" class="still-nav still-nav-prev" id="stillPrev" hidden aria-label="이전 컷">‹</button>
+            <button type="button" class="still-nav still-nav-next" id="stillNext" hidden aria-label="다음 컷">›</button>
+          </div>
+        </section>
+        <section class="console">
+          <div class="log-wrap" id="stillLogWrap">
+            <div class="panel-head log-head">
+              <span>STILL OUTPUT</span>
+              <span>SEPARATE ARCHIVE</span>
+            </div>
+            <div class="log" id="stillLog" role="log" aria-live="polite"></div>
+          </div>
+        </section>
+      </main>
+
       <footer class="toolbar">
         <div class="progress-block">
           <div class="progress-meta">
@@ -135,16 +239,43 @@
             <div class="progress-fill" id="progressFill"></div>
           </div>
         </div>
+        <div class="type-size type-size-inline" role="group" aria-label="글자 크기">
+          <span>SIZE</span>
+          <button type="button" data-size="normal">보통</button>
+          <button type="button" data-size="large">크게</button>
+        </div>
         <div class="toolbar-actions">
           <button type="button" class="btn-sys" id="skipBtn">SKIP BOOT</button>
+          <button type="button" class="btn-sys" id="backBtn" hidden>BACK</button>
           <button type="button" class="btn-sys" id="rebootBtn" hidden>REBOOT</button>
+          <button type="button" class="btn-sys" id="exitBtn" hidden>EXIT</button>
         </div>
       </footer>
     </div>
 
-    <script src="./js/data.js?v=2"></script>
-    <script src="./js/terminal.js?v=2"></script>
-    <script src="./js/fx.js?v=2"></script>
-    <script src="./js/app.js?v=3"></script>
+    <div class="still-viewer is-hidden" id="stillViewer" hidden>
+      <div class="still-viewer-frame">
+        <div class="panel-head">
+          <span id="viewerCaption">ORIGINAL STILL</span>
+          <div class="viewer-tools">
+            <button type="button" class="vault-close" id="viewerPrev" hidden>‹</button>
+            <button type="button" class="vault-close" id="viewerZoomOut">-</button>
+            <button type="button" class="vault-close" id="viewerZoomIn">+</button>
+            <button type="button" class="vault-close" id="viewerNext" hidden>›</button>
+            <button type="button" class="vault-close" id="viewerClose">CLOSE</button>
+          </div>
+        </div>
+        <div class="still-viewer-stage" id="viewerStage">
+          <img id="viewerImage" alt="" draggable="false" />
+          <button type="button" class="still-nav still-nav-prev" id="viewerSidePrev" hidden aria-label="이전 컷">‹</button>
+          <button type="button" class="still-nav still-nav-next" id="viewerSideNext" hidden aria-label="다음 컷">›</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/data.js?v=34"></script>
+    <script src="./js/terminal.js?v=33"></script>
+    <script src="./js/fx.js?v=33"></script>
+    <script src="./js/app.js?v=33"></script>
   </body>
 </html>

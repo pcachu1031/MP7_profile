@@ -41,6 +41,12 @@ class Terminal {
   line(cls = "") {
     const el = document.createElement("div");
     el.className = `line ${cls}`.trim();
+    if (!this.cursor || this.cursor.parentNode !== this.root) {
+      this.cursor = document.createElement("div");
+      this.cursor.className = "line cursor-line";
+      this.cursor.innerHTML = '<span class="prompt-mark">&gt;</span> <span class="cursor">█</span>';
+      this.root.appendChild(this.cursor);
+    }
     this.root.insertBefore(el, this.cursor);
     this.scroll();
     return el;
@@ -105,5 +111,15 @@ class Terminal {
 
   blank() {
     this.line("blank");
+  }
+
+  clear() {
+    this.fast = false;
+    this.waiters.splice(0, this.waiters.length);
+    this.root.innerHTML = "";
+    this.cursor = document.createElement("div");
+    this.cursor.className = "line cursor-line";
+    this.cursor.innerHTML = '<span class="prompt-mark">&gt;</span> <span class="cursor">█</span>';
+    this.root.appendChild(this.cursor);
   }
 }
