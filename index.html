@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#050807" />
+    <title>APA // MP7 PERSONNEL RECORD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css?v=2" />
+  </head>
+  <body>
+    <div class="crt-root">
+      <div class="fx-grid" aria-hidden="true"></div>
+      <div class="fx-vignette" aria-hidden="true"></div>
+      <div class="fx-scanlines" aria-hidden="true"></div>
+      <div class="fx-glitch" id="glitch" aria-hidden="true"></div>
+
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">APA</span>
+          <div class="brand-copy">
+            <strong>ARMAMENT PERSONNEL ARCHIVE</strong>
+            <span>SECURE NODE // WEAPON ENTITY RECORD</span>
+          </div>
+        </div>
+        <div class="status-cluster">
+          <div class="status-item">
+            <span class="led" id="led"></span>
+            <span id="channelState">OFFLINE</span>
+          </div>
+          <div class="status-item" id="opStatus">STANDBY</div>
+          <div class="status-item clock" id="clock">--:--:--</div>
+        </div>
+      </header>
+
+      <main class="workspace is-locked" id="workspace">
+        <aside class="identity" id="identity">
+          <div class="panel-head">
+            <span>VISUAL IDENT</span>
+            <span id="scanLabel">LOCKED</span>
+          </div>
+          <div class="ident-switch" id="identSwitch">
+            <button type="button" class="ident-tab is-active" data-ident="duty" disabled>DUTY</button>
+            <button type="button" class="ident-tab" data-ident="casual" disabled>CIVILIAN</button>
+          </div>
+          <div class="portrait" id="portrait">
+            <div class="bracket tl"></div>
+            <div class="bracket tr"></div>
+            <div class="bracket bl"></div>
+            <div class="bracket br"></div>
+            <img
+              src="./assets/mp7-character.jpg"
+              alt="MP7 제복 식별 이미지"
+              class="portrait-image"
+              id="portraitImage"
+            />
+            <div class="scan-beam" aria-hidden="true"></div>
+            <div class="portrait-hud">
+              <span id="identHud">ID: MP7 // FORMAL</span>
+              <span id="scanPct">SCAN 000%</span>
+            </div>
+          </div>
+          <dl class="spec" id="specList">
+            <div>
+              <dt>DESIGNATION</dt>
+              <dd data-field="designation">—</dd>
+            </div>
+            <div>
+              <dt>CODENAME</dt>
+              <dd data-field="codename">—</dd>
+            </div>
+            <div>
+              <dt>SEX</dt>
+              <dd data-field="gender">—</dd>
+            </div>
+            <div>
+              <dt>HEIGHT</dt>
+              <dd data-field="height">—</dd>
+            </div>
+            <div>
+              <dt>MANUFACTURER</dt>
+              <dd data-field="manufacturer">—</dd>
+            </div>
+            <div>
+              <dt>ORIGIN</dt>
+              <dd data-field="origin">—</dd>
+            </div>
+            <div>
+              <dt>CLASS</dt>
+              <dd data-field="class">—</dd>
+            </div>
+            <div>
+              <dt>CALIBER</dt>
+              <dd data-field="caliber">—</dd>
+            </div>
+            <div>
+              <dt>PLATFORM</dt>
+              <dd data-field="platform">—</dd>
+            </div>
+            <div>
+              <dt>MOBILITY</dt>
+              <dd data-field="mobility">—</dd>
+            </div>
+          </dl>
+        </aside>
+
+        <section class="console">
+          <div class="panel-head">
+            <span>PROFILE DATABASE</span>
+            <span>SELECT DATA CATEGORY</span>
+          </div>
+          <nav class="commands" id="commands" aria-label="프로필 조회 항목"></nav>
+          <div class="log-wrap" id="logWrap">
+            <div class="panel-head log-head">
+              <span>TERMINAL OUTPUT</span>
+              <span id="hashReadout">HASH ----</span>
+            </div>
+            <div class="log" id="log" role="log" aria-live="polite"></div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="toolbar">
+        <div class="progress-block">
+          <div class="progress-meta">
+            <span>LOAD</span>
+            <span id="progressLabel">000%</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+        <div class="toolbar-actions">
+          <button type="button" class="btn-sys" id="skipBtn">SKIP BOOT</button>
+          <button type="button" class="btn-sys" id="rebootBtn" hidden>REBOOT</button>
+        </div>
+      </footer>
+    </div>
+
+    <script src="./js/data.js?v=2"></script>
+    <script src="./js/terminal.js?v=2"></script>
+    <script src="./js/fx.js?v=2"></script>
+    <script src="./js/app.js?v=3"></script>
+  </body>
+</html>
