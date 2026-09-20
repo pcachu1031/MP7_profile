@@ -18,14 +18,21 @@ const FX = {
       vaultPortrait: document.getElementById("vaultPortrait"),
       scanLabel: document.getElementById("scanLabel"),
       scanPct: document.getElementById("scanPct"),
+      hudUplink: document.getElementById("hudUplink"),
+      hudPing: document.getElementById("hudPing"),
+      hudCore: document.getElementById("hudCore"),
     };
 
     this.setChannel("OFFLINE");
     this.setStatus("STANDBY");
     this.setProgress(0);
     this.tickClock();
+    this.tickTelemetry();
     setInterval(() => this.tickClock(), 1000);
     this.hashTimer = setInterval(() => this.tickHash(), 90);
+    if (!this.reduceMotion) {
+      this.telemTimer = setInterval(() => this.tickTelemetry(), 1400);
+    }
   },
 
   tickClock() {
@@ -43,6 +50,19 @@ const FX = {
       .toUpperCase()
       .padStart(6, "0");
     this.els.hash.textContent = `HASH ${hex}`;
+  },
+
+  tickTelemetry() {
+    if (this.els.hudUplink) {
+      this.els.hudUplink.textContent = `${94 + Math.floor(Math.random() * 6)}%`;
+    }
+    if (this.els.hudPing) {
+      this.els.hudPing.textContent = `${12 + Math.floor(Math.random() * 27)}ms`;
+    }
+  },
+
+  setCore(text) {
+    if (this.els.hudCore) this.els.hudCore.textContent = text;
   },
 
   setChannel(state) {

@@ -58,8 +58,14 @@
   const stillLogWrap = document.getElementById("stillLogWrap");
   const stillTerminal = new Terminal(stillLogEl);
   const stillButtons = new Map();
+  const trackBoard = document.getElementById("trackBoard");
+  const trackStage = document.getElementById("trackStage");
+  const trackStatus = document.getElementById("trackStatus");
   let currentIdent = "duty";
   let visualOpen = false;
+  let trackingOpen = false;
+  let trackGeneration = 0;
+  let trackZ = 20;
   let vaultTab = "field";
   let currentStill = null;
   let currentFrame = 0;
@@ -98,6 +104,7 @@
 
   function showVisualView() {
     visualOpen = true;
+    hideTrackBoard();
     document.body.classList.add("is-visual");
     workspace.classList.add("is-hidden");
     visualDeck.classList.remove("is-hidden");
@@ -109,15 +116,127 @@
     visualOpen = false;
     document.body.classList.remove("is-visual");
     visualDeck.classList.add("is-hidden");
-    workspace.classList.remove("is-hidden");
-    backBtn.hidden = true;
     closeStillViewer();
+    if (!trackingOpen) {
+      workspace.classList.remove("is-hidden");
+      backBtn.hidden = true;
+    }
+  }
+
+  const TRACK_LAYOUT = [
+    { top: "4%", left: "2%", width: "30%", rotate: "-1.2deg", z: 3 },
+    { top: "7%", left: "35%", width: "30%", rotate: "0.9deg", z: 4 },
+    { top: "3%", left: "68%", width: "30%", rotate: "-0.6deg", z: 5 },
+    { top: "51%", left: "3%", width: "30%", rotate: "0.8deg", z: 6 },
+    { top: "55%", left: "36%", width: "30%", rotate: "-0.9deg", z: 7 },
+    { top: "49%", left: "69%", width: "30%", rotate: "1.1deg", z: 8 },
+  ];
+
+  function hideTrackBoard() {
+    trackGeneration += 1;
+    trackingOpen = false;
+    document.body.classList.remove("is-tracking");
+    trackBoard.hidden = true;
+    trackBoard.classList.add("is-hidden");
+    trackStage.innerHTML = "";
+    trackStage.classList.remove("has-focus");
+    if (currentStill && currentStill.rating === "track") {
+      currentStill = null;
+      currentFrame = 0;
+    }
+    closeStillViewer();
+    if (!visualOpen) {
+      workspace.classList.remove("is-hidden");
+      backBtn.hidden = true;
+    }
+  }
+
+  function showTrackBoard() {
+    trackingOpen = true;
+    hideVisualView();
+    document.body.classList.add("is-tracking");
+    workspace.classList.add("is-hidden");
+    trackBoard.hidden = false;
+    trackBoard.classList.remove("is-hidden");
+    backBtn.hidden = false;
   }
 
   function returnToProfileView() {
-    if (!visualOpen) return;
-    if (busy) stillTerminal.setFast(true);
-    hideVisualView();
+    if (visualOpen) {
+      if (busy) stillTerminal.setFast(true);
+      hideVisualView();
+      return;
+    }
+    if (trackingOpen) hideTrackBoard();
+  }
+
+  function pinTrackWindow(item, index) {
+    const layout = TRACK_LAYOUT[index % TRACK_LAYOUT.length];
+    const win = document.createElement("button");
+    win.type = "button";
+    win.className = "track-win" + (item.kind === "subject" ? " is-subject" : "");
+    win.style.setProperty("--tt", layout.top);
+    win.style.setProperty("--tl", layout.left);
+    win.style.setProperty("--tw", layout.width);
+    win.style.setProperty("--tr", layout.rotate);
+    win.style.setProperty("--tz", String(layout.z));
+    if (item.kind === "subject") win.dataset.ident = "duty";
+    else win.dataset.still = item.id;
+    const cam = String(index + 1).padStart(2, "0");
+    win.innerHTML = `
+      <span class="track-win-head"><span>CAM ${cam}</span><span>${item.code}</span></span>
+      <img src="${item.src}" alt="${item.title}" />
+      <span class="track-win-foot">${item.title}</span>
+    `;
+    win.addEventListener("click", () => {
+      trackZ += 1;
+      win.style.setProperty("--tz", String(trackZ));
+      const alreadyHot = win.classList.contains("is-hot");
+      trackStage.querySelectorAll(".track-win").forEach((node) => node.classList.remove("is-hot"));
+      win.classList.add("is-hot");
+      trackStage.classList.add("has-focus");
+      if (!alreadyHot) return;
+      if (item.kind === "subject") {
+        openIdentViewer();
+        return;
+      }
+      const still = STILLS.find((entry) => entry.id === item.id);
+      if (!still) return;
+      currentStill = still;
+      currentFrame = 0;
+      updateStillNav();
+      viewerCaption.textContent = `${still.code} // ${still.title}`;
+      openStillViewer();
+    });
+    trackStage.appendChild(win);
+    return win;
+  }
+
+  async function populateTrackBoard() {
+    trackGeneration += 1;
+    const gen = trackGeneration;
+    trackStage.innerHTML = "";
+    trackStage.classList.remove("has-focus");
+    trackZ = 20;
+    const pins = stillsForTab("track").map((still) => ({
+      kind: "still",
+      id: still.id,
+      code: still.code,
+      title: still.title,
+      src: stillCover(still),
+    }));
+    if (trackStatus) trackStatus.textContent = `PINS ${String(pins.length).padStart(2, "0")}`;
+    for (let i = 0; i < pins.length; i += 1) {
+      if (gen !== trackGeneration) return;
+      const win = pinTrackWindow(pins[i], i);
+      if (FX.reduceMotion) {
+        win.classList.add("is-on");
+      } else {
+        await new Promise((resolve) => window.setTimeout(resolve, 90));
+        if (gen !== trackGeneration) return;
+        win.classList.add("is-on");
+      }
+    }
   }
 
   function stillFrames(still) {
@@ -429,7 +548,11 @@
     if (!button) return;
     button.querySelector(".cmd-state").textContent = state;
     button.classList.remove("is-running", "is-accessed", "is-active");
-    if (extraClass) button.classList.add(extraClass);
+    if (extraClass) {
+      extraClass.split(/\s+/).forEach((name) => {
+        if (name) button.classList.add(name);
+      });
+    }
   }
 
   function lockCommands(locked) {
@@ -454,6 +577,12 @@
   const screenSelect = document.getElementById("screenSelect");
   const screenTerminal = document.getElementById("screenTerminal");
   const loginForm = document.getElementById("loginForm");
+  const loginFrame = document.getElementById("loginFrame");
+  const connectLog = document.getElementById("connectLog");
+  const loginKicker = document.getElementById("loginKicker");
+  const loginTitle = document.getElementById("loginTitle");
+  const loginSub = document.getElementById("loginSub");
+  const loginFoot = document.getElementById("loginFoot");
   const passwordInput = document.getElementById("passwordInput");
   const loginMsg = document.getElementById("loginMsg");
   const rosterEl = document.getElementById("roster");
@@ -462,10 +591,21 @@
 
   let booting = false;
   let busy = false;
+  let connecting = false;
+  let connectSkip = false;
   let interfaceReady = false;
   let currentScreen = "login";
   let listenersBound = false;
   let bootGeneration = 0;
+  let connectGeneration = 0;
+
+  const CONNECT_LINES = [
+    { text: "Resolving mepirit://archive", delay: 160, cls: "is-sys" },
+    { text: "Opening uplink // SYN", delay: 200 },
+    { text: "Handshake ACK // cipher OK", delay: 240, cls: "is-ok" },
+    { text: "Secure channel ONLINE", delay: 180, cls: "is-ok" },
+    { text: "Mounting operator gate", delay: 200, cls: "is-sys" },
+  ];
 
   function showScreen(name) {
     currentScreen = name;
@@ -478,12 +618,100 @@
       loginMsg.textContent = "";
       loginMsg.className = "login-msg";
       passwordInput.value = "";
-      document.querySelector(".login-frame")?.classList.remove("is-granted", "is-denied");
+      loginFrame.classList.remove("is-granted", "is-denied");
       loginForm.classList.remove("is-out");
       document.querySelector(".login-row")?.classList.remove("is-out");
       document.querySelector(".login-submit")?.classList.remove("is-out");
-      window.setTimeout(() => passwordInput.focus(), 40);
+      FX.setCore("GATE");
+    } else if (name === "loading") {
+      FX.setCore("MOUNT");
+    } else if (name === "select") {
+      FX.setCore("ROSTER");
+    } else if (name === "terminal") {
+      FX.setCore(interfaceReady ? "LIVE" : "INIT");
     }
+  }
+
+  function waitConnect(ms) {
+    return new Promise((resolve) => {
+      if (connectSkip || FX.reduceMotion) {
+        resolve();
+        return;
+      }
+      const start = Date.now();
+      const timer = window.setInterval(() => {
+        if (connectSkip || FX.reduceMotion || Date.now() - start >= ms) {
+          window.clearInterval(timer);
+          resolve();
+        }
+      }, 16);
+    });
+  }
+
+  function resetConnectChrome() {
+    loginFrame.classList.add("is-connecting");
+    loginFrame.classList.remove("is-linked", "is-granted", "is-denied");
+    loginForm.hidden = true;
+    loginForm.classList.remove("is-out");
+    connectLog.innerHTML = "";
+    loginKicker.textContent = "UPLINK // MEPIRIT";
+    loginTitle.textContent = "ESTABLISHING CHANNEL";
+    loginSub.textContent = "mepirit://archive";
+    loginFoot.textContent = "SEARCHING NODE // CLICK TO SKIP";
+    passwordInput.disabled = false;
+    loginForm.querySelector(".login-submit")?.removeAttribute("disabled");
+    FX.setCore("SYNC");
+  }
+
+  function revealLoginGate() {
+    connecting = false;
+    connectSkip = true;
+    loginFrame.classList.remove("is-connecting");
+    loginFrame.classList.add("is-linked");
+    loginForm.hidden = false;
+    loginKicker.textContent = "CLASSIFIED // MEPIRIT";
+    loginTitle.textContent = "MEPIRIT ARCHIVE";
+    loginSub.textContent = "OPERATOR AUTHENTICATION REQUIRED";
+    loginFoot.textContent = "MEPIRIT NODE ONLINE // AWAITING CREDENTIAL";
+    FX.setCore("GATE");
+    window.setTimeout(() => passwordInput.focus(), 40);
+  }
+
+  async function runConnectGate() {
+    connectGeneration += 1;
+    const gen = connectGeneration;
+    connecting = true;
+    connectSkip = FX.reduceMotion;
+    resetConnectChrome();
+    window.setTimeout(() => {
+      if (gen === connectGeneration && connecting) skipConnect();
+    }, 3600);
+
+    try {
+      if (!FX.reduceMotion) {
+        for (const line of CONNECT_LINES) {
+          if (gen !== connectGeneration) return;
+          if (connectSkip) break;
+          const p = document.createElement("p");
+          p.className = "connect-line" + (line.cls ? ` ${line.cls}` : "");
+          connectLog.appendChild(p);
+          for (let i = 0; i < line.text.length; i += 1) {
+            if (connectSkip || gen !== connectGeneration) break;
+            p.textContent = line.text.slice(0, i + 1);
+            await waitConnect(9);
+          }
+          p.textContent = line.text;
+          await waitConnect(line.delay);
+        }
+      }
+    } finally {
+      if (gen === connectGeneration) revealLoginGate();
+    }
+  }
+
+  function skipConnect() {
+    if (!connecting) return;
+    connectSkip = true;
   }
 
   function skipOutput() {
@@ -509,7 +737,10 @@
       card.type = "button";
       card.className = "entity-card";
       card.innerHTML = `
-        <img src="${character.portrait}" alt="${character.codename} 식별 이미지" />
+        <span class="entity-shot">
+          <span class="entity-reticle" aria-hidden="true"></span>
+          <img src="${character.portrait}" alt="${character.codename} 식별 이미지" />
+        </span>
         <span class="entity-meta">
           <span class="entity-code">${character.designation} // ${character.codename}</span>
           <span class="entity-name">${character.name}</span>
@@ -526,10 +757,11 @@
       empty.className = "entity-card is-locked";
       empty.disabled = true;
       empty.innerHTML = `
+        <span class="entity-bay" aria-hidden="true"></span>
         <span class="entity-meta">
           <span class="entity-code">SLOT 0${i + 2}</span>
-          <span class="entity-name">UNREGISTERED</span>
-          <span class="entity-sub">AWAITING ASSIGNMENT</span>
+          <span class="entity-name">UNALLOCATED</span>
+          <span class="entity-sub">EMPTY CORE</span>
         </span>
       `;
       rosterEl.appendChild(empty);
@@ -552,6 +784,7 @@
     stillTerminal.clear();
     resetVaultPreview();
     hideVisualView();
+    hideTrackBoard();
     setVaultTab("field");
     workspace.classList.add("is-locked");
     workspace.classList.remove("is-ready");
@@ -625,6 +858,7 @@
   function returnToLogin() {
     resetSession();
     showScreen("login");
+    runConnectGate();
   }
 
   async function fillSpecs(instant) {
@@ -644,11 +878,12 @@
     ];
 
     for (const [key, value] of fields) {
-      const node = document.querySelector(`[data-field="${key}"]`);
-      if (!node) continue;
-      node.textContent = value;
-      node.classList.add("is-filled");
-      if (!instant) await terminal.sleep(TIMING.specRevealDelay);
+      const nodes = document.querySelectorAll(`[data-field="${key}"]`);
+      nodes.forEach((node) => {
+        node.textContent = value;
+        node.classList.add("is-filled");
+      });
+      if (!instant && nodes.length) await terminal.sleep(TIMING.specRevealDelay);
     }
   }
 
@@ -686,6 +921,7 @@
     FX.setStatus("READY");
     FX.setChannel("ONLINE");
     FX.setProgress(100);
+    FX.setCore("LIVE");
 
     terminal.setFast(false);
     terminal.blank();
@@ -741,6 +977,11 @@
     identViewBtn.addEventListener("click", (event) => {
       event.stopPropagation();
       openIdentViewer();
+    });
+    trackStage.addEventListener("click", (event) => {
+      if (event.target !== trackStage) return;
+      trackStage.classList.remove("has-focus");
+      trackStage.querySelectorAll(".track-win").forEach((node) => node.classList.remove("is-hot"));
     });
     vaultTabs.addEventListener("click", (event) => {
       const tab = event.target.closest(".ident-tab");
@@ -851,6 +1092,10 @@
     viewerStage.addEventListener("pointercancel", endViewerDrag);
     viewerStage.addEventListener("dblclick", () => fitViewerOriginal());
     document.addEventListener("keydown", (event) => {
+      if (currentScreen === "login" && connecting) {
+        skipConnect();
+        return;
+      }
       if (!stillViewer.hidden) {
         if (event.key === "Escape") {
           event.preventDefault();
@@ -892,12 +1137,15 @@
         skipOutput();
       }
     });
+    screenLogin.addEventListener("click", () => {
+      skipConnect();
+    });
     loginForm.addEventListener("submit", (event) => {
       event.preventDefault();
       const typed = passwordInput.value.trim();
       const expected = AUTH.password;
       const ok = typed.toLowerCase() === expected.toLowerCase();
-      const frame = document.querySelector(".login-frame");
+      const frame = loginFrame;
       if (!ok) {
         loginMsg.textContent = "ACCESS DENIED.";
         loginMsg.className = "login-msg is-bad";
@@ -949,6 +1197,10 @@
       await openVisualArchive();
       return;
     }
+    if (category.id === "tracking") {
+      await openTrackBoard();
+      return;
+    }
 
     FX.setStatus("DECRYPTING");
     FX.triggerScan();
@@ -990,6 +1242,23 @@
     FX.setStatus("READY");
     lockCommands(false);
     terminal.setFast(false);
+  }
+
+  async function openTrackBoard() {
+    showTrackBoard();
+    setButtonState("tracking", "RUNNING", "is-running");
+    lockCommands(true);
+    accessed.add("tracking");
+    buttons.forEach((_, id) => {
+      if (id === "tracking") setButtonState(id, "ACCESSED", "is-accessed is-active");
+      else if (accessed.has(id)) setButtonState(id, "ACCESSED", "is-accessed");
+    });
+
+    terminal.print("> query --category surveillance", "cmd");
+    terminal.print("Track board opened. BACK returns to personnel interface.", "dim");
+    FX.setStatus("LIVE");
+    lockCommands(false);
+    await populateTrackBoard();
   }
 
   async function openVisualArchive() {
@@ -1072,4 +1341,5 @@
   applyTypeSize(window.localStorage.getItem("mepirit-type-size") || "normal");
   renderRoster();
   showScreen("login");
+  runConnectGate();
 })();

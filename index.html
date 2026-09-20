@@ -11,7 +11,7 @@
       href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./css/style.css?v=33" />
+    <link rel="stylesheet" href="./css/style.css?v=43" />
   </head>
   <body>
     <div class="type-size type-size-float" id="typeSize" role="group" aria-label="글자 크기">
@@ -25,15 +25,32 @@
     <div class="fx-vignette" aria-hidden="true"></div>
     <div class="fx-scanlines" aria-hidden="true"></div>
     <div class="fx-glitch" id="glitch" aria-hidden="true"></div>
+    <div class="node-orbit-layer" aria-hidden="true">
+      <span class="node-orbit"></span>
+      <span class="node-orbit is-slow"></span>
+      <span class="node-sweep"></span>
+    </div>
+    <div class="node-chips" aria-hidden="true">
+      <p class="node-chip node-chip-tl"><span>NODE</span><strong>07</strong></p>
+      <p class="node-chip node-chip-tr"><span>UPLINK</span><strong id="hudUplink">98%</strong></p>
+      <p class="node-chip node-chip-bl"><span>PING</span><strong id="hudPing">16ms</strong></p>
+      <p class="node-chip node-chip-br"><span>CORE</span><strong id="hudCore">SYNC</strong></p>
+    </div>
 
     <section class="gate-screen is-on" id="screenLogin" aria-label="로그인">
-      <div class="login-frame">
+      <div class="login-frame is-connecting" id="loginFrame">
         <div class="login-corners" aria-hidden="true"></div>
-        <div class="login-mark">MEP</div>
-        <p class="login-kicker">CLASSIFIED // MEPIRIT</p>
-        <h1>MEPIRIT ARCHIVE</h1>
-        <p class="login-sub">OPERATOR AUTHENTICATION REQUIRED</p>
-        <form id="loginForm" class="login-form" autocomplete="off">
+        <div class="login-reactor">
+          <span class="reactor-ticks" aria-hidden="true"></span>
+          <span class="reactor-ring" aria-hidden="true"></span>
+          <span class="reactor-ring is-inner" aria-hidden="true"></span>
+          <div class="login-mark">MEP</div>
+        </div>
+        <p class="login-kicker" id="loginKicker">UPLINK // MEPIRIT</p>
+        <h1 id="loginTitle">ESTABLISHING CHANNEL</h1>
+        <p class="login-sub" id="loginSub">mepirit://archive</p>
+        <div class="connect-log" id="connectLog" aria-live="polite"></div>
+        <form id="loginForm" class="login-form" autocomplete="off" hidden>
           <label for="passwordInput">PASSWORD</label>
           <div class="login-row">
             <span class="login-prompt">&gt;</span>
@@ -49,14 +66,19 @@
           <p class="login-msg" id="loginMsg" aria-live="polite"></p>
           <button type="submit" class="btn-sys login-submit">AUTHORIZE</button>
         </form>
-        <p class="login-foot">MEPIRIT NODE ONLINE // AWAITING CREDENTIAL</p>
+        <p class="login-foot" id="loginFoot">SEARCHING NODE</p>
       </div>
     </section>
 
     <section class="gate-screen" id="screenLoading" aria-label="명단 로딩">
       <div class="login-frame">
         <div class="login-corners" aria-hidden="true"></div>
-        <div class="login-mark">MEP</div>
+        <div class="login-reactor">
+          <span class="reactor-ticks" aria-hidden="true"></span>
+          <span class="reactor-ring" aria-hidden="true"></span>
+          <span class="reactor-ring is-inner" aria-hidden="true"></span>
+          <div class="login-mark">MEP</div>
+        </div>
         <p class="login-kicker">MEPIRIT NODE</p>
         <h1>MOUNTING ARCHIVE ROSTER</h1>
         <p class="login-sub" id="gateLoadMsg">Opening secure index...</p>
@@ -77,6 +99,12 @@
     <section class="gate-screen" id="screenSelect" aria-label="개체 선택">
       <div class="roster-wrap">
         <header class="roster-head">
+          <div class="login-reactor is-compact">
+            <span class="reactor-ticks" aria-hidden="true"></span>
+            <span class="reactor-ring" aria-hidden="true"></span>
+            <span class="reactor-ring is-inner" aria-hidden="true"></span>
+            <div class="login-mark">MEP</div>
+          </div>
           <p class="login-kicker">MEPIRIT ROSTER</p>
           <h1>SELECT REGISTERED ENTITY</h1>
           <p class="login-sub">REGISTERED: 1 // EMPTY SLOTS AVAILABLE</p>
@@ -107,30 +135,37 @@
 
       <main class="workspace is-locked" id="workspace">
         <aside class="identity" id="identity">
-          <div class="panel-head">
-            <span>VISUAL IDENT</span>
+          <div class="panel-head cad-head">
+            <span class="cad-dots" aria-hidden="true"></span>
+            <span class="cad-file">MP7_ENTITY.MDL</span>
             <span id="scanLabel">LOCKED</span>
           </div>
           <div class="ident-switch" id="identSwitch">
             <button type="button" class="ident-tab is-active" data-ident="duty" disabled>DUTY</button>
             <button type="button" class="ident-tab" data-ident="casual" disabled>CIVILIAN</button>
           </div>
-          <div class="portrait" id="portrait">
-            <div class="bracket tl"></div>
-            <div class="bracket tr"></div>
-            <div class="bracket bl"></div>
-            <div class="bracket br"></div>
-            <img
-              src="./assets/mp7-character.jpg"
-              alt="MP7 제복 식별 이미지"
-              class="portrait-image"
-              id="portraitImage"
-            />
-            <div class="scan-beam" aria-hidden="true"></div>
-            <button type="button" class="ident-view" id="identViewBtn" hidden>VIEW IMAGE</button>
-            <div class="portrait-hud">
-              <span id="identHud">ID: MP7 // FORMAL</span>
-              <span id="scanPct">SCAN 000%</span>
+          <div class="model-stage">
+            <div class="portrait" id="portrait">
+              <div class="bracket tl"></div>
+              <div class="bracket tr"></div>
+              <div class="bracket bl"></div>
+              <div class="bracket br"></div>
+              <img
+                src="./assets/mp7-character.jpg"
+                alt="MP7 제복 식별 이미지"
+                class="portrait-image"
+                id="portraitImage"
+              />
+              <div class="scan-beam" aria-hidden="true"></div>
+              <button type="button" class="ident-view" id="identViewBtn" hidden>VIEW IMAGE</button>
+              <div class="portrait-hud">
+                <span id="identHud">ID: MP7 // FORMAL</span>
+                <span id="scanPct">SCAN 000%</span>
+              </div>
+            </div>
+            <div class="dim-rail" aria-hidden="true">
+              <span class="dim-line"></span>
+              <span class="dim-label" data-field="height">—</span>
             </div>
           </div>
           <div class="ident-sheet">
@@ -139,44 +174,55 @@
             <p class="ident-sub" data-field="sheet-sub">—</p>
             <p class="ident-status"><span class="ident-dot" aria-hidden="true"></span><span data-field="sheet-status">LOCKED</span></p>
           </div>
-          <dl class="spec" id="specList">
-            <div>
-              <dt>HEIGHT</dt>
-              <dd data-field="height">—</dd>
+          <section class="output-info">
+            <div class="panel-head cad-head">
+              <span class="cad-dots" aria-hidden="true"></span>
+              <span class="cad-file">OUTPUT.INFO</span>
+              <span>SPEC</span>
             </div>
-            <div>
-              <dt>SEX</dt>
-              <dd data-field="gender">—</dd>
-            </div>
-            <div>
-              <dt>ORIGIN</dt>
-              <dd data-field="origin">—</dd>
-            </div>
-            <div>
-              <dt>CLASS</dt>
-              <dd data-field="class">—</dd>
-            </div>
-            <div>
-              <dt>CALIBER</dt>
-              <dd data-field="caliber">—</dd>
-            </div>
-            <div>
-              <dt>MAKER</dt>
-              <dd data-field="manufacturer">—</dd>
-            </div>
-          </dl>
-          <p class="ident-note"><span data-field="platform">—</span> // <span data-field="mobility">—</span></p>
+            <dl class="spec" id="specList">
+              <div>
+                <dt>HEIGHT</dt>
+                <dd data-field="height">—</dd>
+              </div>
+              <div>
+                <dt>SEX</dt>
+                <dd data-field="gender">—</dd>
+              </div>
+              <div>
+                <dt>ORIGIN</dt>
+                <dd data-field="origin">—</dd>
+              </div>
+              <div>
+                <dt>CLASS</dt>
+                <dd data-field="class">—</dd>
+              </div>
+              <div>
+                <dt>CALIBER</dt>
+                <dd data-field="caliber">—</dd>
+              </div>
+              <div>
+                <dt>MAKER</dt>
+                <dd data-field="manufacturer">—</dd>
+              </div>
+            </dl>
+            <p class="ident-note"><span data-field="platform">—</span> // <span data-field="mobility">—</span></p>
+          </section>
         </aside>
 
         <section class="console">
-          <div class="panel-head">
-            <span>PROFILE DATABASE</span>
-            <span>SELECT DATA CATEGORY</span>
+          <div class="cad-index">
+            <div class="panel-head cad-head">
+              <span class="cad-dots" aria-hidden="true"></span>
+              <span class="cad-file">PROFILE.DB</span>
+              <span>SELECT DATA CATEGORY</span>
+            </div>
+            <nav class="commands" id="commands" aria-label="프로필 조회 항목"></nav>
           </div>
-          <nav class="commands" id="commands" aria-label="프로필 조회 항목"></nav>
           <div class="log-wrap" id="logWrap">
-            <div class="panel-head log-head">
-              <span>TERMINAL OUTPUT</span>
+            <div class="panel-head log-head cad-head">
+              <span class="cad-dots" aria-hidden="true"></span>
+              <span class="cad-file">QUERY.LOG</span>
               <span id="hashReadout">HASH ----</span>
             </div>
             <div class="log" id="log" role="log" aria-live="polite"></div>
@@ -186,8 +232,9 @@
 
       <main class="workspace visual-deck is-hidden" id="visualDeck">
         <aside class="vault-index">
-          <div class="panel-head">
-            <span>VISUAL LOG</span>
+          <div class="panel-head cad-head">
+            <span class="cad-dots" aria-hidden="true"></span>
+            <span class="cad-file">VISUAL.LOG</span>
             <span id="vaultScan">GENERAL</span>
           </div>
           <div class="vault-tabs" id="vaultTabs">
@@ -200,6 +247,11 @@
           </p>
         </aside>
         <section class="vault-stage">
+          <div class="panel-head cad-head">
+            <span class="cad-dots" aria-hidden="true"></span>
+            <span class="cad-file">STILL.VIEW</span>
+            <span>PREVIEW</span>
+          </div>
           <div class="portrait vault-portrait" id="vaultPortrait">
             <div class="bracket tl"></div>
             <div class="bracket tr"></div>
@@ -220,14 +272,24 @@
         </section>
         <section class="console">
           <div class="log-wrap" id="stillLogWrap">
-            <div class="panel-head log-head">
-              <span>STILL OUTPUT</span>
+            <div class="panel-head log-head cad-head">
+              <span class="cad-dots" aria-hidden="true"></span>
+              <span class="cad-file">STILL.LOG</span>
               <span>SEPARATE ARCHIVE</span>
             </div>
             <div class="log" id="stillLog" role="log" aria-live="polite"></div>
           </div>
         </section>
       </main>
+
+      <section class="track-board is-hidden" id="trackBoard" aria-label="추적 보드" hidden>
+        <div class="panel-head cad-head">
+          <span class="cad-dots" aria-hidden="true"></span>
+          <span class="cad-file">TRACK.FEED</span>
+          <span id="trackStatus">LIVE</span>
+        </div>
+        <div class="track-stage" id="trackStage"></div>
+      </section>
 
       <footer class="toolbar">
         <div class="progress-block">
@@ -273,9 +335,9 @@
       </div>
     </div>
 
-    <script src="./js/data.js?v=34"></script>
-    <script src="./js/terminal.js?v=33"></script>
-    <script src="./js/fx.js?v=33"></script>
-    <script src="./js/app.js?v=33"></script>
+    <script src="./js/data.js?v=43"></script>
+    <script src="./js/terminal.js?v=35"></script>
+    <script src="./js/fx.js?v=38"></script>
+    <script src="./js/app.js?v=45"></script>
   </body>
 </html>
