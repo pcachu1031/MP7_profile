@@ -12,18 +12,19 @@
   const anchors = new Map();
   const buttons = new Map();
 
-  const IDENTS = {
-    duty: {
-      src: "./assets/mp7-character.jpg",
-      alt: "MP7 제복 식별 이미지",
-      hud: "ID: MP7 // FORMAL",
-    },
-    casual: {
-      src: "./assets/mp7-casual.jpg",
-      alt: "MP7 평소 모습",
-      hud: "ID: MP7 // OFF-DUTY",
-    },
-  };
+  let currentCharacterId = "mp7";
+
+  function activeProfile() {
+    return PROFILES[currentCharacterId] || PROFILES.mp7;
+  }
+
+  function applyCharacter(character) {
+    currentCharacterId = character?.id || currentCharacterId || "mp7";
+  }
+
+  function idents() {
+    return activeProfile().idents;
+  }
 
   const portraitImage = document.getElementById("portraitImage");
   const identHud = document.getElementById("identHud");
@@ -99,7 +100,7 @@
   };
 
   function stillsForTab(tab) {
-    return STILLS.filter((still) => (still.rating || "field") === tab);
+    return activeProfile().stills.filter((still) => (still.rating || "field") === tab);
   }
 
   function showVisualView() {
@@ -200,7 +201,7 @@
         openIdentViewer();
         return;
       }
-      const still = STILLS.find((entry) => entry.id === item.id);
+      const still = activeProfile().stills.find((entry) => entry.id === item.id);
       if (!still) return;
       currentStill = still;
       currentFrame = 0;
@@ -400,7 +401,8 @@
     if (!interfaceReady) return;
     viewerMode = "ident";
     const src = portraitImage.getAttribute("src");
-    viewerCaption.textContent = `VISUAL IDENT // ${ENTITY.designation} // ${ENTITY.codename}`;
+    const entity = activeProfile().entity;
+    viewerCaption.textContent = `VISUAL IDENT // ${entity.designation} // ${entity.codename}`;
     stillViewer.hidden = false;
     stillViewer.classList.remove("is-hidden");
     viewerImage.alt = portraitImage.alt || "VISUAL IDENT";
@@ -461,7 +463,7 @@
   }
 
   function setIdent(mode) {
-    const ident = IDENTS[mode];
+    const ident = idents()[mode];
     if (!ident) return;
     const same = currentIdent === mode;
     currentIdent = mode;
@@ -504,7 +506,7 @@
 
   function renderCommands() {
     commandsEl.innerHTML = "";
-    CATEGORIES.forEach((category) => {
+    activeProfile().categories.forEach((category) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "cmd";
@@ -759,7 +761,7 @@
       empty.innerHTML = `
         <span class="entity-bay" aria-hidden="true"></span>
         <span class="entity-meta">
-          <span class="entity-code">SLOT 0${i + 2}</span>
+          <span class="entity-code">SLOT 0${CHARACTERS.length + i + 1}</span>
           <span class="entity-name">UNALLOCATED</span>
           <span class="entity-sub">EMPTY CORE</span>
         </span>
@@ -844,7 +846,8 @@
     showScreen("select");
   }
 
-  async function enterCharacter() {
+  async function enterCharacter(character) {
+    if (character) applyCharacter(character);
     resetSession();
     showScreen("terminal");
     await runBoot();
@@ -862,19 +865,20 @@
   }
 
   async function fillSpecs(instant) {
+    const entity = activeProfile().entity;
     const fields = [
-      ["sheet-code", `${ENTITY.designation} // ${ENTITY.codename}`],
-      ["sheet-name", ENTITY.name],
-      ["sheet-sub", `${ENTITY.class} // ${ENTITY.manufacturer}`],
-      ["sheet-status", "ONLINE"],
-      ["height", ENTITY.height],
-      ["gender", ENTITY.gender],
-      ["origin", ENTITY.origin],
-      ["class", ENTITY.class],
-      ["caliber", ENTITY.caliber],
-      ["manufacturer", ENTITY.manufacturer],
-      ["platform", ENTITY.platform],
-      ["mobility", ENTITY.mobility],
+      ["sheet-code", `${entity.designation} // ${entity.codename}`],
+      ["sheet-name", entity.name],
+      ["sheet-sub", `${entity.class} // ${entity.manufacturer}`],
+      ["sheet-status", currentCharacterId === "viera" ? "PARTIAL" : "ONLINE"],
+      ["height", entity.height],
+      ["gender", entity.gender],
+      ["origin", entity.origin],
+      ["class", entity.class],
+      ["caliber", entity.caliber],
+      ["manufacturer", entity.manufacturer],
+      ["platform", entity.platform],
+      ["mobility", entity.mobility],
     ];
 
     for (const [key, value] of fields) {
@@ -942,10 +946,13 @@
     for (let i = 0; i < BOOT_SEQUENCE.length; i += 1) {
       if (gen !== bootGeneration || currentScreen !== "terminal") return;
       const step = BOOT_SEQUENCE[i];
+      const text = step.text === "Query: MP7"
+        ? `Query: ${activeProfile().entity.designation}`
+        : step.text;
       if (terminal.fast) {
-        terminal.print(step.text, step.cls || "sys");
+        terminal.print(text, step.cls || "sys");
       } else {
-        await terminal.type(step.text, step.cls || "sys");
+        await terminal.type(text, step.cls || "sys");
       }
       if (gen !== bootGeneration || currentScreen !== "terminal") return;
       if (typeof step.progress === "number") FX.setProgress(step.progress);
@@ -1284,7 +1291,7 @@
 
   async function onCategoryClick(id) {
     if (!interfaceReady || busy) return;
-    const category = CATEGORIES.find((item) => item.id === id);
+    const category = activeProfile().categories.find((item) => item.id === id);
     if (!category) return;
 
     busy = true;
@@ -1302,7 +1309,7 @@
 
   async function onStillClick(id) {
     if (!interfaceReady || busy) return;
-    const still = STILLS.find((item) => item.id === id);
+    const still = activeProfile().stills.find((item) => item.id === id);
     if (!still) return;
 
     busy = true;

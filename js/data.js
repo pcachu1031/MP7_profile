@@ -25,9 +25,19 @@ const CHARACTERS = [
     portrait: "./assets/mp7-character.jpg",
     summary: "PDW // Heckler & Koch",
   },
+  {
+    id: "viera",
+    designation: "VIERA",
+    name: "Viera Kriss",
+    codename: "Kriss",
+    status: "PARTIAL",
+    available: true,
+    portrait: "./assets/viera-ident.jpg",
+    summary: "AWAITING OPERATOR INPUT",
+  },
 ];
 
-const EMPTY_ROSTER_SLOTS = 2;
+const EMPTY_ROSTER_SLOTS = 1;
 
 const ENTITY = {
   designation: "MP7",
@@ -842,3 +852,230 @@ const CATEGORIES = [
     ],
   },
 ];
+
+const VIERA_ENTITY = {
+  designation: "VIERA",
+  name: "Viera Kriss",
+  codename: "Kriss",
+  gender: "여성",
+  height: "—",
+  manufacturer: "—",
+  origin: "—",
+  class: "UNREGISTERED",
+  caliber: "—",
+  platform: "AWAITING OPERATOR INPUT",
+  mobility: "—",
+};
+
+function pendingCategory(id, label, command, extra) {
+  return {
+    id,
+    label,
+    command: command || `query --category ${id}`,
+    processLines: [
+      `Searching category: ${label}...`,
+      "Accessing encrypted record...",
+      "Decrypting data...",
+      "Data stream established.",
+    ],
+    content: [
+      `[ ${label} ]`,
+      "STATUS: AWAITING OPERATOR INPUT",
+      "",
+      "이 항목은 아직 등록되지 않았습니다.",
+      ...(extra || []),
+    ],
+  };
+}
+
+function trackSnap(id, code, title, image, note) {
+  return {
+    id,
+    code,
+    title,
+    image,
+    rating: "track",
+    command: `query --snap ${id}`,
+    processLines: [
+      `Searching track feed: ${code}...`,
+      "Pinning capture window...",
+      "Decrypting field notes...",
+      "Data stream established.",
+    ],
+    content: [
+      `[ TRACK FEED // ${code} ]`,
+      "",
+      "기록:",
+      "",
+      note,
+    ],
+  };
+}
+
+const VIERA_STILLS = [
+  trackSnap("viera-ident", "SNAP 01", "손 모으고", "./assets/viera-ident.jpg", "식별 사진으로 등록된 컷이다. 상세 기록은 아직 없다."),
+  trackSnap("viera-casual", "SNAP 02", "그냥 서 있었다", "./assets/viera-casual.jpg", "식별 사진으로 등록된 컷이다. 상세 기록은 아직 없다."),
+  trackSnap("viera-lean", "SNAP 03", "조금 숙이고", "./assets/viera-track-lean.jpg", "식별 사진으로 등록된 컷이다. 상세 기록은 아직 없다."),
+  trackSnap("viera-kneel", "SNAP 04", "무릎 꿇고", "./assets/viera-track-kneel.jpg", "식별 사진으로 등록된 컷이다. 상세 기록은 아직 없다."),
+];
+
+const VIERA_CATEGORIES = [
+  pendingCategory("basic", "BASIC INFORMATION", "query --category basic", [
+    "",
+    "지정명: VIERA",
+    "본명: Viera Kriss",
+    "코드네임: Kriss",
+    "성별: 여성",
+    "식별 사진: 등록됨",
+    "나머지 인물 기록: AWAITING OPERATOR INPUT",
+  ]),
+  {
+    id: "personality",
+    label: "PERSONALITY",
+    command: "query --category personality",
+    processLines: [
+      "Searching category: PERSONALITY...",
+      "Accessing behavioral archive...",
+      "Decrypting data...",
+      "Data stream established.",
+    ],
+    content: [
+      "[ PERSONALITY DATA ]",
+      "",
+      "성격:",
+      "",
+      "사알짝 소심하다. 큰 자리에서는 몸이 먼저 작아진다. 말은 있는데, 꺼내기 전에 한 번 더 삼킨다.",
+      "",
+      "부끄러움을 많이 탄다. 시선이 마주치면 먼저 피하고, 칭찬이 들어오면 대답이 늦어진다. 거절이라기보다, 어떻게 받아들여야 할지 모르는 쪽에 가깝다.",
+      "",
+      "차가워서가 아니다. 폐를 끼치기 싫어서 한 발 뒤에 서는 타입이다. 불러 주면 온다. 다만 자기가 먼저 끼어들지는 않는다.",
+      "",
+      "긴장이 올라오면 손이 앞으로 모인다. 서 있을 때도, 앉아 있을 때도 같다. 본인은 의식하지 않는다고 한다. 촬영 담당 주석: 의식하고 있음.",
+      "",
+      "가까워지면 소심함이 좀 풀린다. 그래도 낯가림이 없어지진 않는다. 편한 사람 옆에서만 목소리가 조금 커진다. 그마저도 금방 다시 작아진다.",
+      "",
+      "잘 듣는다. 말하는 쪽이 부담이라, 상대 말을 끝까지 듣는 편이다. 맞장구는 짧다. \"응.\", \"그랬어?\", 그 다음이 잘 안 나온다.",
+      "",
+      "실수하면 사과가 먼저다. 큰 일이 아닌데도 \"미안\"이 나온다. 미안할 일이 아니라고 하면, 이번엔 그게 또 미안해진다.",
+      "",
+      "혼자 있는 건 괜찮다. 다만 혼자 남겨지는 건 조금 다르다. 문이 닫히면 시선이 그쪽에 남는다.",
+      "",
+      "한번 마음을 주면 잘 안 거둔다. 티는 거의 안 낸다. 대신 그 사람 옆에 서는 위치가 조금 더 가까워진다.",
+      "",
+      "종합:",
+      "",
+      "겉은 조심스럽고, 속은 따뜻하다.",
+      "",
+      "소심해서 다가오기 어려운 사람이 아니라, 다가와 주면 따라오는 사람이다. 본모습은 큰 선언이 아니라, 손이 모이는 버릇이나 늦게 나오는 대답에서 샌다.",
+    ],
+  },
+  {
+    id: "likes",
+    label: "LIKES",
+    command: "query --category likes",
+    processLines: [
+      "Searching category: LIKES...",
+      "Parsing preference index...",
+      "Decrypting data...",
+      "Data stream established.",
+    ],
+    content: [
+      "[ LIKES DATA ]",
+      "",
+      "좋아하는 것:",
+      "",
+      "창가처럼, 있어도 눈에 잘 안 띄는 자리. 가운데보다 가장자리가 편하다. 사람을 보긴 보는데, 자기가 보이는 건 조금만 원한다.",
+      "",
+      "소매가 긴 옷. 손이 들어가면 긴장이 조금 내려간다. 본인 진술: \"그냥 편하다.\" 촬영 담당 주석: 소매 안에서 손이 모임.",
+      "",
+      "먼저 불러 주는 사람. 끼어들 타이밍을 못 찾아서, 기다려 주면 따라온다. 재촉 없이 옆자리를 비워 두는 쪽이 더 잘 통한다.",
+      "",
+      "작은 반복. 같은 자리, 같은 잔, 같은 길. 새로움보다 익숙한 쪽이 숨이 편하다. 변해도 한 가지씩만 바뀌면 따라간다.",
+      "",
+      "목소리가 낮은 곳. 비 오는 오후, 말수가 적은 방. 조용하면 표정이 조금 풀린다. 본인은 \"아무 일 없었다\"고 한다.",
+      "",
+      "종합:",
+      "",
+      "좋아하는 건 대체로 작고 조용하다. 티를 내기보다, 그 자리에 조금 더 오래 남는 쪽으로 나타난다.",
+    ],
+  },
+  {
+    id: "dislikes",
+    label: "DISLIKES",
+    command: "query --category dislikes",
+    processLines: [
+      "Searching category: DISLIKES...",
+      "Parsing aversion index...",
+      "Decrypting data...",
+      "Data stream established.",
+    ],
+    content: [
+      "[ DISLIKES DATA ]",
+      "",
+      "싫어하는 것:",
+      "",
+      "결정을 떠넘겨지는 것. \"너가 정해\"가 제일 어렵다. 취향이 없어서가 아니라, 틀리면 미안해서다. 고른 뒤에도 한 번 더 묻는다.",
+      "",
+      "겨우 꺼낸 말이 덮이는 것. 맞장구는 짧은데, 그 한 마디를 지나가 버리면 다시는 안 꺼낸다. 화낸다기보다 그냥 입을 닫는다.",
+      "",
+      "진한 향. 향수든 세제든, 코를 누르면 한 발 물러난다. 본인 진술: \"머리 아팠어.\" 촬영 담당 주석: 창문부터 찾았음.",
+      "",
+      "찬 것. 찬물, 찬 손잡이, 에어컨이 바로 닿는 자리. 더운 건 참아도, 찬 건 표정이 먼저 바뀐다. 소매를 내리는 속도가 빨라진다.",
+      "",
+      "어수선한 자리. 익숙한 반복을 좋아해서, 물건이 흩어져 있으면 손이 먼저 간다. 정리하라는 말은 잘 못 하고, 그냥 자기 앞만 살짝 맞춘다.",
+      "",
+      "종합:",
+      "",
+      "사람은 싫지 않다. 싫어하는 건 떠넘겨지는 선택이랑, 감각이 갑자기 세지는 쪽이다. 말은 적어도, 한 번 꺼낸 말은 들어 달라는 쪽에 가깝다.",
+    ],
+  },
+  pendingCategory("traits", "TRAITS"),
+  pendingCategory("stills", "VISUAL LOG", "query --category stills", [
+    "",
+    "VISUAL LOG 스틸은 아직 없습니다.",
+    "식별 사진과 TRACK.FEED 만 등록되어 있습니다.",
+  ]),
+  pendingCategory("tracking", "SURVEILLANCE", "query --category surveillance", [
+    "",
+    "TRACK.FEED 스냅만 핀한다.",
+  ]),
+  pendingCategory("relationships", "RELATIONSHIPS"),
+  pendingCategory("notes", "ADDITIONAL RECORDS"),
+];
+
+const PROFILES = {
+  mp7: {
+    entity: ENTITY,
+    stills: STILLS,
+    categories: CATEGORIES,
+    idents: {
+      duty: {
+        src: "./assets/mp7-character.jpg",
+        alt: "MP7 제복 식별 이미지",
+        hud: "ID: MP7 // FORMAL",
+      },
+      casual: {
+        src: "./assets/mp7-casual.jpg",
+        alt: "MP7 평소 모습",
+        hud: "ID: MP7 // OFF-DUTY",
+      },
+    },
+  },
+  viera: {
+    entity: VIERA_ENTITY,
+    stills: VIERA_STILLS,
+    categories: VIERA_CATEGORIES,
+    idents: {
+      duty: {
+        src: "./assets/viera-ident.jpg",
+        alt: "Viera Kriss 식별 이미지",
+        hud: "ID: VIERA // FORMAL",
+      },
+      casual: {
+        src: "./assets/viera-casual.jpg",
+        alt: "Viera Kriss 평소 모습",
+        hud: "ID: VIERA // OFF-DUTY",
+      },
+    },
+  },
+};
