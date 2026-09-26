@@ -12,14 +12,45 @@
   const anchors = new Map();
   const buttons = new Map();
 
-  let currentCharacterId = "mp7";
+  let currentCharacterId = typeof CHARACTERS !== "undefined" && CHARACTERS[0]?.id ? CHARACTERS[0].id : "";
+
+  function site() {
+    return typeof SITE !== "undefined" && SITE
+      ? SITE
+      : {
+          mark: "MEP",
+          name: "MEPIRIT ARCHIVE",
+          node: "MEPIRIT",
+          scheme: "mepirit://archive",
+          uplink: "UPLINK // MEPIRIT",
+          classified: "CLASSIFIED // MEPIRIT",
+          roster: "MEPIRIT ROSTER",
+          nodeOnline: "MEPIRIT NODE ONLINE // AWAITING CREDENTIAL",
+        };
+  }
+
+  function emptyProfile() {
+    return {
+      entity: typeof ENTITY !== "undefined" ? ENTITY : {},
+      stills: [],
+      categories: typeof CATEGORIES !== "undefined" ? CATEGORIES : [],
+      idents: {
+        duty: { src: "", alt: "", hud: "ID: — // —" },
+        casual: { src: "", alt: "", hud: "ID: — // —" },
+      },
+    };
+  }
 
   function activeProfile() {
-    return PROFILES[currentCharacterId] || PROFILES.mp7;
+    const fallbackId = typeof CHARACTERS !== "undefined" ? CHARACTERS[0]?.id : "";
+    return (
+      (typeof PROFILES !== "undefined" && (PROFILES[currentCharacterId] || PROFILES[fallbackId])) ||
+      emptyProfile()
+    );
   }
 
   function applyCharacter(character) {
-    currentCharacterId = character?.id || currentCharacterId || "mp7";
+    currentCharacterId = character?.id || currentCharacterId || (typeof CHARACTERS !== "undefined" && CHARACTERS[0]?.id) || "";
   }
 
   function idents() {
@@ -467,7 +498,8 @@
     if (!ident) return;
     const same = currentIdent === mode;
     currentIdent = mode;
-    portraitImage.src = ident.src;
+    if (ident.src) portraitImage.src = ident.src;
+    else portraitImage.removeAttribute("src");
     portraitImage.alt = ident.alt;
     identHud.textContent = ident.hud;
     document.documentElement.classList.toggle("theme-civilian", mode === "casual");
@@ -601,13 +633,15 @@
   let bootGeneration = 0;
   let connectGeneration = 0;
 
-  const CONNECT_LINES = [
-    { text: "Resolving mepirit://archive", delay: 160, cls: "is-sys" },
-    { text: "Opening uplink // SYN", delay: 200 },
-    { text: "Handshake ACK // cipher OK", delay: 240, cls: "is-ok" },
-    { text: "Secure channel ONLINE", delay: 180, cls: "is-ok" },
-    { text: "Mounting operator gate", delay: 200, cls: "is-sys" },
-  ];
+  function connectLines() {
+    return [
+      { text: `Resolving ${site().scheme}`, delay: 160, cls: "is-sys" },
+      { text: "Opening uplink // SYN", delay: 200 },
+      { text: "Handshake ACK // cipher OK", delay: 240, cls: "is-ok" },
+      { text: "Secure channel ONLINE", delay: 180, cls: "is-ok" },
+      { text: "Mounting operator gate", delay: 200, cls: "is-sys" },
+    ];
+  }
 
   function showScreen(name) {
     currentScreen = name;
@@ -656,9 +690,9 @@
     loginForm.hidden = true;
     loginForm.classList.remove("is-out");
     connectLog.innerHTML = "";
-    loginKicker.textContent = "UPLINK // MEPIRIT";
+    loginKicker.textContent = site().uplink;
     loginTitle.textContent = "ESTABLISHING CHANNEL";
-    loginSub.textContent = "mepirit://archive";
+    loginSub.textContent = site().scheme;
     loginFoot.textContent = "SEARCHING NODE // CLICK TO SKIP";
     passwordInput.disabled = false;
     loginForm.querySelector(".login-submit")?.removeAttribute("disabled");
@@ -671,10 +705,10 @@
     loginFrame.classList.remove("is-connecting");
     loginFrame.classList.add("is-linked");
     loginForm.hidden = false;
-    loginKicker.textContent = "CLASSIFIED // MEPIRIT";
-    loginTitle.textContent = "MEPIRIT ARCHIVE";
+    loginKicker.textContent = site().classified;
+    loginTitle.textContent = site().name;
     loginSub.textContent = "OPERATOR AUTHENTICATION REQUIRED";
-    loginFoot.textContent = "MEPIRIT NODE ONLINE // AWAITING CREDENTIAL";
+    loginFoot.textContent = site().nodeOnline;
     FX.setCore("GATE");
     window.setTimeout(() => passwordInput.focus(), 40);
   }
@@ -691,7 +725,7 @@
 
     try {
       if (!FX.reduceMotion) {
-        for (const line of CONNECT_LINES) {
+        for (const line of connectLines()) {
           if (gen !== connectGeneration) return;
           if (connectSkip) break;
           const p = document.createElement("p");
@@ -946,8 +980,8 @@
     for (let i = 0; i < BOOT_SEQUENCE.length; i += 1) {
       if (gen !== bootGeneration || currentScreen !== "terminal") return;
       const step = BOOT_SEQUENCE[i];
-      const text = step.text === "Query: MP7"
-        ? `Query: ${activeProfile().entity.designation}`
+      const text = /^Query:/.test(step.text)
+        ? `Query: ${activeProfile().entity?.designation || site().node || "UNKNOWN"}`
         : step.text;
       if (terminal.fast) {
         terminal.print(text, step.cls || "sys");

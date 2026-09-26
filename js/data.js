@@ -14,6 +14,17 @@ const AUTH = {
   password: "1031",
 };
 
+const SITE = {
+  mark: "MEP",
+  name: "MEPIRIT ARCHIVE",
+  node: "MEPIRIT",
+  scheme: "mepirit://archive",
+  uplink: "UPLINK // MEPIRIT",
+  classified: "CLASSIFIED // MEPIRIT",
+  roster: "MEPIRIT ROSTER",
+  nodeOnline: "MEPIRIT NODE ONLINE // AWAITING CREDENTIAL",
+};
+
 const CHARACTERS = [
   {
     id: "mp7",

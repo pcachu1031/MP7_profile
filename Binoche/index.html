@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f0b12" />
+    <title>Ariane Binoche</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css?v=7" />
+  </head>
+  <body>
+    <header class="top">
+      <p class="brand">Binoche</p>
+    </header>
+
+    <main class="page">
+      <section class="profile">
+        <div class="profile-row">
+          <img class="avatar" id="avatar" src="./assets/profile-01.jpg" alt="Ariane Binoche" />
+          <div class="stats">
+            <p><strong id="statPosts">0</strong><span>게시물</span></p>
+            <p><strong id="statFollowers">—</strong><span>팔로워</span></p>
+            <p><strong id="statFollowing">—</strong><span>팔로잉</span></p>
+          </div>
+        </div>
+        <h1 class="name" id="profileName">Ariane Binoche</h1>
+        <p class="name-ko" id="profileNameKo">아리안 비노슈</p>
+        <p class="handle" id="profileHandle">@ariane</p>
+        <p class="bio" id="profileBio">샤를로트와 아이리스의 막내 딸.</p>
+      </section>
+
+      <nav class="tabs" aria-label="프로필 탭">
+        <button type="button" class="tab is-on" data-tab="posts">게시물</button>
+        <button type="button" class="tab" data-tab="about">소개</button>
+      </nav>
+
+      <section class="panel is-on" id="panelPosts">
+        <div class="grid" id="grid"></div>
+      </section>
+
+      <section class="panel" id="panelAbout" hidden>
+        <div class="about" id="about"></div>
+      </section>
+    </main>
+
+    <div class="viewer" id="viewer" hidden>
+      <button type="button" class="viewer-close" id="viewerClose">닫기</button>
+      <img id="viewerImage" alt="" />
+    </div>
+
+    <script src="./js/data.js?v=4"></script>
+    <script src="./js/app.js?v=4"></script>
+  </body>
+</html>
