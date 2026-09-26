@@ -11,27 +11,40 @@
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./css/style.css?v=7" />
+    <link rel="stylesheet" href="./css/style.css?v=10" />
   </head>
   <body>
-    <header class="top">
-      <p class="brand">Binoche</p>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="bloom" aria-hidden="true"></div>
+
+    <header class="top" id="top">
+      <div class="top-inner">
+        <p class="brand">Binoche</p>
+        <div class="top-pin" id="topPin" hidden>
+          <img class="top-avatar" id="topAvatar" alt="" />
+          <span id="topHandle"></span>
+        </div>
+      </div>
     </header>
 
     <main class="page">
-      <section class="profile">
+      <section class="profile" id="profile">
         <div class="profile-row">
-          <img class="avatar" id="avatar" src="./assets/profile-01.jpg" alt="Ariane Binoche" />
+          <div class="avatar-wrap">
+            <img class="avatar" id="avatar" src="./assets/profile-01.jpg" alt="Ariane Binoche" />
+          </div>
           <div class="stats">
             <p><strong id="statPosts">0</strong><span>게시물</span></p>
             <p><strong id="statFollowers">—</strong><span>팔로워</span></p>
             <p><strong id="statFollowing">—</strong><span>팔로잉</span></p>
           </div>
         </div>
-        <h1 class="name" id="profileName">Ariane Binoche</h1>
-        <p class="name-ko" id="profileNameKo">아리안 비노슈</p>
-        <p class="handle" id="profileHandle">@ariane</p>
-        <p class="bio" id="profileBio">샤를로트와 아이리스의 막내 딸.</p>
+        <div class="identity">
+          <h1 class="name" id="profileName">Ariane Binoche</h1>
+          <p class="name-ko" id="profileNameKo">아리안 비노슈</p>
+          <p class="handle" id="profileHandle">@ariane</p>
+          <p class="bio" id="profileBio">샤를로트와 아이리스의 막내 딸.</p>
+        </div>
       </section>
 
       <nav class="tabs" aria-label="프로필 탭">
@@ -44,16 +57,22 @@
       </section>
 
       <section class="panel" id="panelAbout" hidden>
-        <div class="about" id="about"></div>
+        <div class="about-stack">
+          <p class="about-kicker">소개</p>
+          <div class="about" id="about"></div>
+        </div>
       </section>
     </main>
 
     <div class="viewer" id="viewer" hidden>
-      <button type="button" class="viewer-close" id="viewerClose">닫기</button>
-      <img id="viewerImage" alt="" />
+      <button type="button" class="viewer-close" id="viewerClose" aria-label="닫기">닫기</button>
+      <figure class="viewer-frame">
+        <img id="viewerImage" alt="" />
+        <figcaption id="viewerCaption" hidden></figcaption>
+      </figure>
     </div>
 
-    <script src="./js/data.js?v=4"></script>
-    <script src="./js/app.js?v=4"></script>
+    <script src="./js/data.js?v=9"></script>
+    <script src="./js/app.js?v=7"></script>
   </body>
 </html>
